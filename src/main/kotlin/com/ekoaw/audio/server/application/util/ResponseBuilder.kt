@@ -7,7 +7,7 @@ object ResponseBuilder {
         return ResponseModel(status = "success", message = message)
     }
 
-    fun error(message: String, code: String? = null): ResponseModel {
-        return ResponseModel(status = "error", message = message, code = code)
+    fun error(message: String = "error"): ResponseModel {
+        return ResponseModel(status = "error", message = message)
     }
 }

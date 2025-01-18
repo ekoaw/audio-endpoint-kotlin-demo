@@ -1,7 +1,9 @@
 ﻿package com.ekoaw.audio.server.application.controller
 
 import com.ekoaw.audio.server.application.util.ResponseBuilder
+import com.ekoaw.audio.server.domain.model.AudioInfo
 import com.ekoaw.audio.server.domain.model.ResponseModel
+import com.ekoaw.audio.server.application.service.AudioFileService
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -12,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 
 @RestController
-class AudioController() {
+class AudioController(private val audioFileService: AudioFileService) {
     @GetMapping("/audio/user/{userId}/phrase/{phraseId}")
     fun getAudio(
             @PathVariable userId: String,
@@ -31,27 +33,22 @@ class AudioController() {
         // Validate the file extension
         if (!audioFile.originalFilename.orEmpty().endsWith(".m4a", ignoreCase = true)) {
             return ResponseEntity(
-                    ResponseBuilder.error(
-                            "Invalid file format. Only .m4a files are allowed.",
-                            "ERR_INVALID_FILE_FORMAT"
-                    ),
+                    ResponseBuilder.error("Invalid file format. Only .m4a files are allowed."),
                     HttpStatus.BAD_REQUEST
             )
         }
 
         // Save the file to the temporary folder
         try {
-            // TODO: file storage
+            audioFileService.storeAudioFile(AudioInfo(userId, phraseId), audioFile)
+
             return ResponseEntity(
                     ResponseBuilder.success("File uploaded successfully"),
                     HttpStatus.OK
             )
         } catch (e: Exception) {
             return ResponseEntity(
-                    ResponseBuilder.error(
-                            "File upload failed: ${e.message}",
-                            "ERR_FILE_UPLOAD_ERROR"
-                    ),
+                    ResponseBuilder.error("File upload failed: ${e.message}"),
                     HttpStatus.INTERNAL_SERVER_ERROR
             )
         }

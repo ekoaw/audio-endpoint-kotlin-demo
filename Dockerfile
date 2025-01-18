@@ -1,0 +1,30 @@
+﻿# Use Eclipse Temurin OpenJDK 21 runtime image
+FROM eclipse-temurin:21-jdk-alpine
+
+# Set the working directory
+WORKDIR /server
+
+# Copy Gradle wrapper, build script, and source files
+COPY gradlew gradlew
+COPY gradle gradle
+COPY build.gradle build.gradle
+COPY settings.gradle settings.gradle
+COPY src src
+
+# Make Gradle wrapper executable
+RUN chmod +x gradlew
+
+# Build the application
+RUN ./gradlew bootJar
+
+# Install FFmpeg on Alpine
+RUN apk add --no-cache ffmpeg
+
+# Move the built JAR to working directory
+RUN mv build/libs/*.jar server.jar
+
+# Expose port 8080
+EXPOSE 8080
+
+# Run the application
+ENTRYPOINT ["java", "-jar", "server.jar"]
