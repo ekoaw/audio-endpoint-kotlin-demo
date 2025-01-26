@@ -1,6 +1,6 @@
-﻿package com.ekoaw.audio.server.application.service
+﻿package com.ekoaw.audio.server.service
 
-import com.ekoaw.audio.server.domain.model.AudioInfo
+import com.ekoaw.audio.server.model.request.AudioRequestModel
 import java.io.File
 import java.nio.file.Files
 import java.nio.file.Path
@@ -24,7 +24,7 @@ class AudioFileService() {
         }
     }
 
-    fun storeAudioFile(info: AudioInfo, multipartFile: MultipartFile) {
+    fun uploadAudioFile(info: AudioRequestModel, multipartFile: MultipartFile) {
         // Determine the destination path
         val filePath = tempFolder.resolve("${info.userId}_${info.phraseId}.m4a")
         val file = filePath.toFile()
@@ -39,7 +39,7 @@ class AudioFileService() {
         // Convert to wav
         convertAudioFile(file, "wav")
 
-        // Delete file from disk
+        // Delete temp file from disk
         file.delete()
     }
 
@@ -50,7 +50,9 @@ class AudioFileService() {
             outputFile.delete()
         }
 
-        val process = ProcessBuilder("ffmpeg", "-i", inputFile.absolutePath, outputFile.absolutePath).start()
+        val process =
+                ProcessBuilder("ffmpeg", "-i", inputFile.absolutePath, outputFile.absolutePath)
+                        .start()
 
         process.waitFor()
         if (process.exitValue() == 0) {

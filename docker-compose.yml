@@ -7,8 +7,8 @@
       - "8080:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/audiodb
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
+      SPRING_DATASOURCE_USERNAME: audiouser
+      SPRING_DATASOURCE_PASSWORD: audiopass
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
       - db
@@ -18,13 +18,14 @@
     container_name: postgres
     restart: always
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: audiouser
+      POSTGRES_PASSWORD: audiopass
       POSTGRES_DB: audiodb
     ports:
-      - "5432:5432"
+      - "6432:5432" # exposed to 6432 for local testing
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
 
 volumes:
   postgres_data:

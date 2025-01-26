@@ -1,6 +1,6 @@
-﻿package com.ekoaw.audio.server.application.util
+﻿package com.ekoaw.audio.server.util
 
-import com.ekoaw.audio.server.domain.model.ResponseModel
+import com.ekoaw.audio.server.model.response.ResponseModel
 
 object ResponseBuilder {
     fun success(message: String = "success"): ResponseModel {
