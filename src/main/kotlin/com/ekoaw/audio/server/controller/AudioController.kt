@@ -12,12 +12,14 @@ import com.ekoaw.audio.server.util.ServiceResult
 import java.util.Optional
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.http.HttpHeaders
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import org.springframework.core.io.Resource
 
 @RestController
 class AudioController(
@@ -39,9 +41,15 @@ class AudioController(
     fun getAudio(
             @PathVariable userId: Int,
             @PathVariable phraseId: Int
-    ): ResponseEntity<ResponseModel> {
-        // TODO: file download
-        return ResponseEntity(ResponseBuilder.success("Should be a file"), HttpStatus.OK)
+    ): ResponseEntity<Any> {
+        return when (val result = audioFileService.downloadAudioFile(AudioRequestModel(userId, phraseId))) {
+        is ServiceResult.Success ->
+            ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${result.data?.filename}\"")
+            .body(result.data)
+        is ServiceResult.Failure ->
+            ResponseEntity(ResponseBuilder.error(result.message), result.code)
+        }
     }
 
     @PostMapping("/audio/user/{userId}/phrase/{phraseId}")
@@ -50,19 +58,19 @@ class AudioController(
             @PathVariable phraseId: Int,
             @RequestParam("audio_file") audioFile: MultipartFile
     ): ResponseEntity<ResponseModel> {
-        // Save the file to the temporary folder
-        try {
-            // TODO: move to background process to avoid congestion
-
-            return when (val result = audioFileService.uploadAudioFile(AudioRequestModel(userId, phraseId), audioFile)) {
-                is ServiceResult.Success -> ResponseEntity(ResponseBuilder.success("File uploaded successfully"), HttpStatus.OK)
-                is ServiceResult.Failure -> ResponseEntity(ResponseBuilder.error(result.message), HttpStatus.INTERNAL_SERVER_ERROR)
-            }
-        } catch (e: Exception) {
-            return ResponseEntity(
-                    ResponseBuilder.error("File upload failed: ${e.message}"),
-                    HttpStatus.INTERNAL_SERVER_ERROR
-            )
+        return when (val result =
+                        audioFileService.uploadAudioFile(
+                                AudioRequestModel(userId, phraseId),
+                                audioFile
+                        )
+        ) {
+            is ServiceResult.Success ->
+                    ResponseEntity(
+                            ResponseBuilder.success("File uploaded successfully"),
+                            HttpStatus.OK
+                    )
+            is ServiceResult.Failure ->
+                    ResponseEntity(ResponseBuilder.error(result.message), result.code)
         }
     }
 }
