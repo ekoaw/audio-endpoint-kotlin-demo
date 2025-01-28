@@ -26,6 +26,44 @@
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./migrations:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "audiouser", "-d", "audiodb", "-h", "localhost", "-p", "5432" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  storage:
+    image: quay.io/minio/minio:latest
+    container_name: storage
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: audiouser
+      MINIO_ROOT_PASSWORD: audiopass
+    entrypoint: >
+      /bin/sh -c "
+        isAlive() { curl -sf http://127.0.0.1:9000/minio/health/live; }  # check if Minio is alive
+        minio $0 "$@" --quiet & echo $! > /tmp/minio.pid                 # start Minio in the background
+        while ! isAlive; do sleep 0.1; done                              # wait until Minio is alive
+        mc alias set minio http://127.0.0.1:9000 audiouser audiopass     # setup Minio client
+        mc mb minio/audio-storage-bucket || true                         # create a test bucket
+        mc anonymous set public minio/audio-storage-bucket               # make the test bucket public
+        mc mb minio/audio-temp-bucket || true                            # create a test bucket
+        mc anonymous set public minio/audio-temp-bucket                  # make the test bucket public
+        kill -s INT $(cat /tmp/minio.pid) && rm /tmp/minio.pid           # stop Minio
+        while isAlive; do sleep 0.1; done                                # wait until Minio is stopped
+        exec minio $0 "$@"                                               # start Minio in the foreground
+      "
+    command: server /data --console-address :9001
+    volumes:
+      - minio-data:/data:rw
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://127.0.0.1:9000/minio/health/live" ]
+      interval: 10s
+      start_interval: 1s
+      start_period: 10s
 
 volumes:
-  postgres_data:
+  minio-data: {}
+  postgres_data: {}

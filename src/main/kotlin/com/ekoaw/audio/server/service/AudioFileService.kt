@@ -1,5 +1,6 @@
 ﻿package com.ekoaw.audio.server.service
 
+import com.ekoaw.audio.server.config.AudioConversionConfig
 import com.ekoaw.audio.server.model.entity.UserPhraseFileModel
 import com.ekoaw.audio.server.model.request.AudioRequestModel
 import com.ekoaw.audio.server.repository.PhraseRepository
@@ -22,7 +23,8 @@ import org.springframework.core.io.FileSystemResource
 class AudioFileService(
         private val userRepository: UserRepository,
         private val phraseRepository: PhraseRepository,
-        private val userPhraseFileRepository: UserPhraseFileRepository
+        private val userPhraseFileRepository: UserPhraseFileRepository,
+        private val audioConversionConfig: AudioConversionConfig
 ) {
 
     // Configure the folder where files will be saved
@@ -137,15 +139,14 @@ class AudioFileService(
             outputFile.delete()
         }
 
-        val arguments = mutableListOf("ffmpeg", "-i", inputFile.absolutePath)
-
-        when (ext.lowercase()) {
-            "m4a" -> { arguments.addAll(listOf("-c:a", "aac", "-b:a", "128k")) }
-            "wav" -> { arguments.addAll(listOf("-c:a", "pcm_s16le", "-ar", "44100", "-ac", "2")) }
-            else -> { throw IllegalArgumentException("Unsupported extension: $ext") }
+        val outputArguments = audioConversionConfig.extensions[ext.lowercase()]
+        if (outputArguments == null) {
+            throw IllegalArgumentException("Unsupported extension: $ext")
         }
 
-        arguments.add(outputFile.absolutePath)
+        val arguments = listOf("ffmpeg", "-i", inputFile.absolutePath) + outputArguments + listOf(outputFile.absolutePath)
+        println(arguments)
+
         val process = ProcessBuilder(arguments).start()
         process.waitFor()
 
