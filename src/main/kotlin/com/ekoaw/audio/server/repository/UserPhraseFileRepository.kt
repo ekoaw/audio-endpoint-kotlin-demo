@@ -7,13 +7,14 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface UserPhraseFileRepository : JpaRepository<UserPhraseFileModel, Int> {
-    fun findFirstByUserIdAndPhraseIdAndDeletedAtIsNullOrderByCreatedAtDesc(
-            userId: Int,
-            phraseId: Int
-    ): Optional<UserPhraseFileModel>
+        fun findFirstByUserIdAndPhraseIdAndDeletedAtIsNullOrderByCreatedAtDesc(
+                userId: Int,
+                phraseId: Int
+        ): Optional<UserPhraseFileModel>
 
-    fun findByUserIdAndPhraseIdAndDeletedAtIsNullOrderByCreatedAtDesc(
-            userId: Int,
-            phraseId: Int
-    ): List<UserPhraseFileModel>
+        fun findByUserIdAndPhraseIdAndDeletedAtIsNullAndIdLessThanOrderByCreatedAtDesc(
+                userId: Int,
+                phraseId: Int,
+                id: Int
+        ): List<UserPhraseFileModel>
 }
