@@ -2,7 +2,8 @@
 
 on:
   pull_request:
-    branches: [] # disable CI, because free runner is taking too long to pickup
+    branches:
+      - main
 
 jobs:
   test:
