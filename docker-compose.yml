@@ -6,28 +6,32 @@
     ports:
       - "8080:8080"
     environment:
+      LOG_FORMAT: CONSOLE_TEXT
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/audiodb
-      SPRING_DATASOURCE_USERNAME: audiouser
-      SPRING_DATASOURCE_PASSWORD: audiopass
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SPRING_DATASOURCE_USERNAME: dbuser
+      SPRING_DATASOURCE_PASSWORD: dbpass
+      MINIO_ENDPOINT: http://storage:9000
+      MINIO_ACCESS-KEY: storageuser
+      MINIO_SECRET-KEY: storagepass
     depends_on:
       - db
+      - storage
 
   db:
     image: postgres:17
     container_name: postgres
     restart: always
     environment:
-      POSTGRES_USER: audiouser
-      POSTGRES_PASSWORD: audiopass
+      POSTGRES_USER: dbuser
+      POSTGRES_PASSWORD: dbpass
       POSTGRES_DB: audiodb
     ports:
       - "6432:5432" # exposed to 6432 for local testing
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres-data:/var/lib/postgresql/data
       - ./migrations:/docker-entrypoint-initdb.d
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "audiouser", "-d", "audiodb", "-h", "localhost", "-p", "5432" ]
+      test: [ "CMD", "pg_isready", "-U", "dbuser", "-d", "audiodb", "-h", "localhost", "-p", "5432" ]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -39,21 +43,24 @@
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: audiouser
-      MINIO_ROOT_PASSWORD: audiopass
+      MINIO_ROOT_USER: storageuser
+      MINIO_ROOT_PASSWORD: storagepass
+      ALIAS_NAME: minio
+      BUCKET_NAME: audio-storage-bucket
     entrypoint: >
       /bin/sh -c "
-        isAlive() { curl -sf http://127.0.0.1:9000/minio/health/live; }  # check if Minio is alive
-        minio $0 "$@" --quiet & echo $! > /tmp/minio.pid                 # start Minio in the background
-        while ! isAlive; do sleep 0.1; done                              # wait until Minio is alive
-        mc alias set minio http://127.0.0.1:9000 audiouser audiopass     # setup Minio client
-        mc mb minio/audio-storage-bucket || true                         # create a test bucket
-        mc anonymous set public minio/audio-storage-bucket               # make the test bucket public
-        mc mb minio/audio-temp-bucket || true                            # create a test bucket
-        mc anonymous set public minio/audio-temp-bucket                  # make the test bucket public
-        kill -s INT $(cat /tmp/minio.pid) && rm /tmp/minio.pid           # stop Minio
-        while isAlive; do sleep 0.1; done                                # wait until Minio is stopped
-        exec minio $0 "$@"                                               # start Minio in the foreground
+        if [ ! -f .initialized ]; then
+          isAlive() { curl -sf http://127.0.0.1:9000/minio/health/live; }         # check if Minio is alive
+          minio $0 "$@" --quiet & echo $! > /tmp/minio.pid                        # start Minio in the background
+          while ! isAlive; do sleep 0.1; done                                     # wait until Minio is alive
+          mc alias set $$ALIAS_NAME http://127.0.0.1:9000 storageuser storagepass # setup Minio client
+          mc mb $$ALIAS_NAME/$$BUCKET_NAME || true                                # create storage bucket
+          # mc anonymous set public $$ALIAS_NAME/$$BUCKET_NAME                      # make storage bucket public
+          kill -s INT $(cat /tmp/minio.pid) && rm /tmp/minio.pid                  # stop Minio
+          while isAlive; do sleep 0.1; done                                       # wait until Minio is stopped
+          touch .initialized
+        fi
+        exec minio $0 "$@"                                                        # start Minio in the foreground
       "
     command: server /data --console-address :9001
     volumes:
@@ -66,4 +73,4 @@
 
 volumes:
   minio-data: {}
-  postgres_data: {}
+  postgres-data: {}

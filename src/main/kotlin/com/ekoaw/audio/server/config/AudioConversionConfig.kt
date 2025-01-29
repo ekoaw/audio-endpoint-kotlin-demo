@@ -5,6 +5,4 @@ import org.springframework.context.annotation.Configuration
 
 @Configuration
 @ConfigurationProperties(prefix = "audio.conversion")
-data class AudioConversionConfig(
-    val extensions: Map<String, List<String>>
-)
+data class AudioConversionConfig(val extensions: Map<String, List<String>>)

@@ -1,4 +1,4 @@
-﻿CREATE SCHEMA audiodemo AUTHORIZATION audiouser;
+﻿CREATE SCHEMA audiodemo AUTHORIZATION dbuser;
 
 CREATE TABLE audiodemo.users (
     id int GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
