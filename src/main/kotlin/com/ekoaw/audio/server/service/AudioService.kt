@@ -1,11 +1,11 @@
 ﻿package com.ekoaw.audio.server.service
 
-import com.ekoaw.audio.server.config.AudioConversionConfig
 import com.ekoaw.audio.server.model.entity.UserPhraseFileModel
 import com.ekoaw.audio.server.model.request.AudioRequestModel
 import com.ekoaw.audio.server.repository.PhraseRepository
 import com.ekoaw.audio.server.repository.UserPhraseFileRepository
 import com.ekoaw.audio.server.repository.UserRepository
+import com.ekoaw.audio.server.util.AudioConverter
 import com.ekoaw.audio.server.util.ServiceResult
 import java.io.File
 import java.io.FileInputStream
@@ -34,8 +34,8 @@ class AudioService(
         private val userRepository: UserRepository,
         private val phraseRepository: PhraseRepository,
         private val userPhraseFileRepository: UserPhraseFileRepository,
-        private val audioConversionConfig: AudioConversionConfig,
-        private val storageService: StorageService
+        private val storageService: StorageService,
+        private val audioConverter: AudioConverter
 ) {
     private val logger: Logger = LoggerFactory.getLogger(AudioService::class.java)
     private val executor = Executors.newSingleThreadExecutor()
@@ -102,7 +102,7 @@ class AudioService(
             }
 
             // Convert audio to WAV format
-            val outputFile = convertAudioFile(info, inputFile, "wav")
+            val outputFile = audioConverter.convertAudioFile(info, inputFile, "wav")
 
             // Upload converted file to storage
             FileInputStream(inputFile).use { inputStream ->
@@ -212,7 +212,7 @@ class AudioService(
             }
 
             // Convert audio to m4a format
-            outputFile = convertAudioFile(info, tempFile!!, "m4a")
+            outputFile = audioConverter.convertAudioFile(info, tempFile!!, "m4a")
 
             // Return the converted file as a Resource
             return ServiceResult.success(FileSystemResource(outputFile))
@@ -236,57 +236,6 @@ class AudioService(
                     logger.warn("Failed to delete temporary files: {}", e.message)
                 }
             }
-        }
-    }
-
-    /**
-     * Converts an audio file to the specified format using FFmpeg.
-     *
-     * @param info An object containing user ID and phrase ID.
-     * @param inputFile The input audio file.
-     * @param ext The desired output file extension (e.g., "mp3", "wav").
-     * @return The converted audio file.
-     *
-     * @throws IllegalArgumentException If the specified extension is not supported.
-     * @throws IOException If an I/O error occurs during the conversion process.
-     * @throws Exception If the FFmpeg command execution fails.
-     */
-    private fun convertAudioFile(info: AudioRequestModel, inputFile: File, ext: String): File {
-        logger.info("Converting audio file to {}", ext)
-        val outputFile = File.createTempFile("${info.userId}_${info.phraseId}_", ".$ext")
-
-        try {
-            if (outputFile.exists()) {
-                logger.debug("Deleting existing output file: {}", outputFile.absolutePath)
-                outputFile.delete()
-            }
-
-            val outputArguments = audioConversionConfig.extensions[ext.lowercase()]
-            if (outputArguments == null) {
-                logger.error("Unsupported extension: {}", ext)
-                throw IllegalArgumentException("Unsupported extension: $ext")
-            }
-
-            val arguments =
-                    listOf("ffmpeg", "-i", inputFile.absolutePath) +
-                            outputArguments +
-                            listOf(outputFile.absolutePath)
-
-            logger.info("Starting audio conversion: {}", arguments.joinToString(" "))
-
-            val process = ProcessBuilder(arguments).start()
-            process.waitFor()
-
-            if (process.exitValue() != 0) {
-                logger.error("Audio conversion failed with exit code: {}", process.exitValue())
-                throw Exception("Audio conversion failed")
-            }
-
-            logger.info("Audio conversion successful: {}", outputFile.absolutePath)
-            return outputFile
-        } catch (e: IOException) {
-            logger.error("I/O error during audio conversion:", e)
-            throw e
         }
     }
 }
