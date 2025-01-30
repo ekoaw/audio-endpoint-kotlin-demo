@@ -123,6 +123,5 @@ Alternatively, you can start PostgreSQL and MinIO manually and then run the appl
 
 ## Future Enhancements
 
-- Support multiple audio formats
-- Implement user authentication
-- Add expiration policy for stored files
+- Implement integration and load testing to ensure system reliability and performance under various conditions.
+- Simulate and test load balancing strategies using Kubernetes and a reverse proxy to enhance scalability and fault tolerance.
