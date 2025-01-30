@@ -71,6 +71,18 @@ minio:
 
 ### Running the Service
 
+You can use Docker Compose to run the server along with its dependencies.
+
+1. Ensure you have Docker and Docker Compose installed.
+2. Use the provided `docker-compose.yml` file to start the services:
+   ```sh
+   docker-compose up -d
+   ```
+3. The service should now be accessible.
+
+Alternatively, you can start PostgreSQL and MinIO manually and then run the application:
+
+
 1. Start PostgreSQL and MinIO
 2. Run the application:
    ```sh
