@@ -26,7 +26,7 @@
       POSTGRES_PASSWORD: dbpass
       POSTGRES_DB: audiodb
     ports:
-      - "6432:5432" # exposed to 6432 for local testing
+      - "5432:5432"
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./migrations:/docker-entrypoint-initdb.d
