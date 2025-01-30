@@ -27,8 +27,8 @@ The service also includes a simple database to manage:
   - Stores it on the server
   - Saves the file path in the database
 - The **GET** endpoint:
-  - Retrieves the stored audio file based on `user_id` and `phrase_id`
-  - Converts the stored format to the requested format
+  - Retrieves the stored audio file based on `user_id` and `phrase_id`, allowing the client to specify the desired `audio_format` as a path parameter
+  - Converts the stored format to the requested `audio_format` if supported
   - Returns the file as a response
 - Both endpoints validate `user_id` and `phrase_id` against the database.
 
@@ -82,12 +82,20 @@ You can use Docker Compose to run the server along with its dependencies.
 
 Alternatively, you can start PostgreSQL and MinIO manually and then run the application:
 
-
 1. Start PostgreSQL and MinIO
 2. Run the application:
    ```sh
    ./gradlew bootRun
    ```
+
+### Running Unit Tests
+
+You can run unit tests using the following command:
+   ```sh
+   ./gradlew test
+   ```
+
+The tests are designed to run with mock implementations, so there is no need to manually set up PostgreSQL or MinIO before running them.
 
 ## API Usage
 
