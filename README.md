@@ -80,6 +80,14 @@ You can use Docker Compose to run the server along with its dependencies.
    ```
 3. The service should now be accessible.
 
+### Service Access Details
+- **API Service:** Available on `http://localhost:8080`
+- **MinIO Console:** Accessible at `http://localhost:9001` with username `storageuser` and password `storagepass`
+- **PostgreSQL:** Running on port `5432` with the following credentials:
+  - **User:** `dbuser`
+  - **Password:** `dbpass`
+  - **Database:** `audiodb`
+
 Alternatively, you can start PostgreSQL and MinIO manually and then run the application:
 
 1. Start PostgreSQL and MinIO
