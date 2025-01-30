@@ -1,4 +1,4 @@
-﻿# Use Eclipse Temurin OpenJDK 21 runtime as build image
+# Use Eclipse Temurin OpenJDK 21 runtime as build image
 FROM eclipse-temurin:21-jdk-alpine AS build
 
 # Set the working directory

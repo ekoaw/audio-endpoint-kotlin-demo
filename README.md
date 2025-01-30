@@ -1,4 +1,4 @@
-﻿# Audio Service Backend
+# Audio Service Backend
 
 ## Aim
 

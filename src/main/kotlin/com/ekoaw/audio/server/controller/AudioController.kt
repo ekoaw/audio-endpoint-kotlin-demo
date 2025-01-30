@@ -1,4 +1,4 @@
-﻿package com.ekoaw.audio.server.application.controller
+package com.ekoaw.audio.server.application.controller
 
 import com.ekoaw.audio.server.model.request.AudioRequestModel
 import com.ekoaw.audio.server.model.response.ResponseModel
@@ -23,64 +23,60 @@ import org.springframework.web.multipart.MultipartFile
  */
 @RestController
 class AudioController(
-        private val audioService: AudioService,
-        private val userRepository: UserRepository,
-        private val phraseRepository: PhraseRepository
+  private val audioService: AudioService,
+  private val userRepository: UserRepository,
+  private val phraseRepository: PhraseRepository,
 ) {
-        /**
-         * Retrieves the audio file associated with the specified user and phrase.
-         *
-         * @param userId The ID of the user.
-         * @param phraseId The ID of the phrase.
-         * @return A ResponseEntity containing the audio file as a Resource,
-         * ```
-         *         or an error response if the file is not found.
-         * ```
-         */
-        @GetMapping("/audio/user/{userId}/phrase/{phraseId}/{audioFormat}")
-        fun getAudio(@PathVariable userId: Int, @PathVariable phraseId: Int, @PathVariable audioFormat: String): ResponseEntity<Any> {
-                return when (val result =
-                                audioService.downloadAudioFile(AudioRequestModel(userId, phraseId), audioFormat)
-                ) {
-                        is ServiceResult.Success ->
-                                ResponseEntity.ok()
-                                        .header(
-                                                HttpHeaders.CONTENT_DISPOSITION,
-                                                "attachment; filename=\"${result.data?.filename}\""
-                                        )
-                                        .body(result.data)
-                        is ServiceResult.Failure ->
-                                ResponseEntity(ResponseBuilder.error(result.message), result.code)
-                }
-        }
+  /**
+   * Retrieves the audio file associated with the specified user and phrase.
+   *
+   * @param userId The ID of the user.
+   * @param phraseId The ID of the phrase.
+   * @return A ResponseEntity containing the audio file as a Resource,
+   * ```
+   *         or an error response if the file is not found.
+   * ```
+   */
+  @GetMapping("/audio/user/{userId}/phrase/{phraseId}/{audioFormat}")
+  fun getAudio(
+    @PathVariable userId: Int,
+    @PathVariable phraseId: Int,
+    @PathVariable audioFormat: String,
+  ): ResponseEntity<Any> {
+    return when (
+      val result = audioService.downloadAudioFile(AudioRequestModel(userId, phraseId), audioFormat)
+    ) {
+      is ServiceResult.Success ->
+        ResponseEntity.ok()
+          .header(
+            HttpHeaders.CONTENT_DISPOSITION,
+            "attachment; filename=\"${result.data?.filename}\"",
+          )
+          .body(result.data)
+      is ServiceResult.Failure -> ResponseEntity(ResponseBuilder.error(result.message), result.code)
+    }
+  }
 
-        /**
-         * Uploads an audio file for the specified user and phrase.
-         *
-         * @param userId The ID of the user.
-         * @param phraseId The ID of the phrase.
-         * @param audioFile The audio file to be uploaded.
-         * @return A ResponseEntity containing a success or failure response.
-         */
-        @PostMapping("/audio/user/{userId}/phrase/{phraseId}")
-        fun postAudio(
-                @PathVariable userId: Int,
-                @PathVariable phraseId: Int,
-                @RequestParam("audio_file") audioFile: MultipartFile
-        ): ResponseEntity<ResponseModel> {
-                return when (val result =
-                                audioService.uploadAudioFile(
-                                        AudioRequestModel(userId, phraseId),
-                                        audioFile
-                                )
-                ) {
-                        is ServiceResult.Success ->
-                                ResponseEntity(
-                                        ResponseBuilder.success("File uploaded successfully"),
-                                        HttpStatus.OK
-                                )
-                        is ServiceResult.Failure ->
-                                ResponseEntity(ResponseBuilder.error(result.message), result.code)
-                }
-        }
+  /**
+   * Uploads an audio file for the specified user and phrase.
+   *
+   * @param userId The ID of the user.
+   * @param phraseId The ID of the phrase.
+   * @param audioFile The audio file to be uploaded.
+   * @return A ResponseEntity containing a success or failure response.
+   */
+  @PostMapping("/audio/user/{userId}/phrase/{phraseId}")
+  fun postAudio(
+    @PathVariable userId: Int,
+    @PathVariable phraseId: Int,
+    @RequestParam("audio_file") audioFile: MultipartFile,
+  ): ResponseEntity<ResponseModel> {
+    return when (
+      val result = audioService.uploadAudioFile(AudioRequestModel(userId, phraseId), audioFile)
+    ) {
+      is ServiceResult.Success ->
+        ResponseEntity(ResponseBuilder.success("File uploaded successfully"), HttpStatus.OK)
+      is ServiceResult.Failure -> ResponseEntity(ResponseBuilder.error(result.message), result.code)
+    }
+  }
 }

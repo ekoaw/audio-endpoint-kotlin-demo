@@ -4,5 +4,5 @@ import org.junit.jupiter.api.Test
 
 class ServerApplicationTests {
 
-    @Test fun contextLoads() {}
+  @Test fun contextLoads() {}
 }

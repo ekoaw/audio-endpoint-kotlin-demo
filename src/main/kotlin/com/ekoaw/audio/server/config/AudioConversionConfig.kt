@@ -1,4 +1,4 @@
-﻿package com.ekoaw.audio.server.config
+package com.ekoaw.audio.server.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.context.annotation.Configuration
