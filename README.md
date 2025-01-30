@@ -43,7 +43,7 @@ The service also includes a simple database to manage:
 
 ### Prerequisites
 
-- Java 17+
+- Java 21+
 - PostgreSQL
 - MinIO
 - FFmpeg
