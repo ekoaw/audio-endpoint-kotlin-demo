@@ -1,9 +1,6 @@
 ﻿# Use Eclipse Temurin OpenJDK 21 runtime as build image
 FROM eclipse-temurin:21-jdk-alpine AS build
 
-# Install FFmpeg on Alpine
-RUN apk add --no-cache ffmpeg
-
 # Set the working directory
 WORKDIR /source
 
@@ -30,6 +27,9 @@ RUN ./gradlew bootJar
 
 # Use Eclipse Temurin OpenJDK 21 runtime as server image
 FROM eclipse-temurin:21-jdk-alpine
+
+# Install FFmpeg on Alpine
+RUN apk add --no-cache ffmpeg
 
 # Set the working directory
 WORKDIR /app
