@@ -1,4 +1,4 @@
-﻿package com.ekoaw.audio.server.util
+﻿package com.ekoaw.audio.server.service
 
 import com.ekoaw.audio.server.config.AudioConversionConfig
 import com.ekoaw.audio.server.model.request.AudioRequestModel
@@ -11,7 +11,7 @@ import kotlin.test.assertTrue
 import kotlin.test.assertFailsWith
 
 class AudioConverterTest {
-    private lateinit var audioConverter: AudioConverter
+    private lateinit var converterService: ConverterService
     private lateinit var audioConversionConfig: AudioConversionConfig
     private lateinit var processMock: Process
     private lateinit var inputFile: File
@@ -27,7 +27,7 @@ class AudioConverterTest {
         mockkConstructor(ProcessBuilder::class)
 
         // Creating AudioConverter with mocked AudioConversionConfig
-        audioConverter = AudioConverter(audioConversionConfig)
+        converterService = ConverterService(audioConversionConfig)
 
         // Mocking Process
         processMock = mockk()
@@ -45,7 +45,8 @@ class AudioConverterTest {
         audioRequestModel = AudioRequestModel(userId = 1, phraseId = 1001)
 
         // Mocking the extension configuration
-        every { audioConversionConfig.extensions["m4a"] } returns listOf("-c:a", "aac", "-b:a", "128k")
+        val mockExtensions = mapOf("m4a" to listOf("-c:a", "aac", "-b:a", "128k"))
+        every { audioConversionConfig.extensions } returns mockExtensions
     }
 
     @Test
@@ -55,7 +56,7 @@ class AudioConverterTest {
         every { processMock.exitValue() } returns 0
 
         // Call the method to test and check that no exception is thrown
-        audioConverter.convertAudioFile(audioRequestModel, inputFile, "m4a")
+        converterService.convertAudioFile(audioRequestModel, inputFile, "m4a")
 
         // Verifying that the process was executed
         verify { processMock.waitFor() }
@@ -69,7 +70,7 @@ class AudioConverterTest {
 
         // Expecting an exception
         assertFailsWith<Exception>("Audio conversion failed") {
-            audioConverter.convertAudioFile(audioRequestModel, inputFile, "m4a")
+            converterService.convertAudioFile(audioRequestModel, inputFile, "m4a")
         }
 
         verify { processMock.waitFor() }
@@ -81,7 +82,7 @@ class AudioConverterTest {
         val invalidExtension = "xyz"
 
         val exception = assertFailsWith<IllegalArgumentException> {
-            audioConverter.convertAudioFile(audioRequestModel, inputFile, invalidExtension)
+            converterService.convertAudioFile(audioRequestModel, inputFile, invalidExtension)
         }
 
         assertTrue(exception.message?.contains("Unsupported extension") == true)

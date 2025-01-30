@@ -5,7 +5,7 @@ import com.ekoaw.audio.server.model.request.AudioRequestModel
 import com.ekoaw.audio.server.repository.PhraseRepository
 import com.ekoaw.audio.server.repository.UserPhraseFileRepository
 import com.ekoaw.audio.server.repository.UserRepository
-import com.ekoaw.audio.server.util.AudioConverter
+import com.ekoaw.audio.server.service.ConverterService
 import com.ekoaw.audio.server.util.ServiceResult
 import java.io.File
 import java.io.FileInputStream
@@ -35,7 +35,7 @@ class AudioService(
         private val phraseRepository: PhraseRepository,
         private val userPhraseFileRepository: UserPhraseFileRepository,
         private val storageService: StorageService,
-        private val audioConverter: AudioConverter
+        private val converterService: ConverterService
 ) {
     private val logger: Logger = LoggerFactory.getLogger(AudioService::class.java)
     private val executor = Executors.newSingleThreadExecutor()
@@ -102,7 +102,7 @@ class AudioService(
             }
 
             // Convert audio to WAV format
-            val outputFile = audioConverter.convertAudioFile(info, inputFile, "wav")
+            val outputFile = converterService.convertAudioFile(info, inputFile, "wav")
 
             // Upload converted file to storage
             FileInputStream(inputFile).use { inputStream ->
@@ -212,7 +212,7 @@ class AudioService(
             }
 
             // Convert audio to m4a format
-            outputFile = audioConverter.convertAudioFile(info, tempFile!!, "m4a")
+            outputFile = converterService.convertAudioFile(info, tempFile!!, "m4a")
 
             // Return the converted file as a Resource
             return ServiceResult.success(FileSystemResource(outputFile))

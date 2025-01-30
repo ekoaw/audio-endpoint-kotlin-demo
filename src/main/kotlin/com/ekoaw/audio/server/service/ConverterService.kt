@@ -1,4 +1,4 @@
-﻿package com.ekoaw.audio.server.util
+﻿package com.ekoaw.audio.server.service
 
 import com.ekoaw.audio.server.config.AudioConversionConfig
 import com.ekoaw.audio.server.model.request.AudioRequestModel
@@ -6,8 +6,11 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 import java.io.IOException
-class AudioConverter(private val audioConversionConfig: AudioConversionConfig) {
-    private val logger: Logger = LoggerFactory.getLogger(AudioConverter::class.java)
+import org.springframework.stereotype.Service
+
+@Service
+class ConverterService(private val audioConversionConfig: AudioConversionConfig) {
+    private val logger: Logger = LoggerFactory.getLogger(ConverterService::class.java)
 
     /**
      * Converts an audio file to the specified format using FFmpeg.
@@ -31,11 +34,12 @@ class AudioConverter(private val audioConversionConfig: AudioConversionConfig) {
                 outputFile.delete()
             }
 
-            val outputArguments = audioConversionConfig.extensions[ext.lowercase()]
-            if (outputArguments == null) {
+            if (!audioConversionConfig.extensions.containsKey(ext)) {
                 logger.error("Unsupported extension: {}", ext)
                 throw IllegalArgumentException("Unsupported extension: $ext")
             }
+
+            val outputArguments = audioConversionConfig.extensions[ext]!!
 
             val arguments =
                     listOf("ffmpeg", "-i", inputFile.absolutePath) +

@@ -19,8 +19,8 @@ COPY build.gradle build.gradle
 COPY settings.gradle settings.gradle
 
 # Download Gradle dependencies
-# RUN ./gradlew dependencies --no-daemon
-RUN --mount=type=cache,target=/root/.gradle ./gradlew dependencies --no-daemon
+RUN ./gradlew dependencies --no-daemon
+# RUN --mount=type=cache,target=/root/.gradle ./gradlew dependencies --no-daemon
 
 # Copy the source code
 COPY src src
