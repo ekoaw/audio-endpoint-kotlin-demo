@@ -9,10 +9,10 @@ import com.ekoaw.audio.server.repository.UserRepository
 import com.ekoaw.audio.server.util.ServiceResult
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.time.OffsetDateTime
 import java.util.concurrent.Executors
 import org.apache.commons.io.FileCleaningTracker
+import org.apache.commons.io.FileUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.FileSystemResource
@@ -24,9 +24,6 @@ import org.springframework.web.multipart.MultipartFile
 /**
  * This service class provides business logic for managing audio files, including uploading,
  * downloading, and conversion.
- *
- * It interacts with various repositories (UserRepository, PhraseRepository,
- * UserPhraseFileRepository) and services (StorageService) to perform these operations.
  */
 @Service
 class AudioService(
@@ -87,10 +84,7 @@ class AudioService(
 
       // Save uploaded file to temporary location
       logger.info("Saving uploaded file to: {}", inputFile)
-
-      multipartFile.inputStream.use { inputStream ->
-        FileOutputStream(inputFile).use { outputStream -> inputStream.copyTo(outputStream) }
-      }
+      FileUtils.copyInputStreamToFile(multipartFile.inputStream, inputFile)
 
       // Convert audio to WAV format
       val outputFile = converterService.convertAudioFile(info, inputFile, "wav")
@@ -101,16 +95,10 @@ class AudioService(
       }
 
       // Insert user-phrase file info into database
-      val fileId =
-        userPhraseFileRepository
-          .save(
-            UserPhraseFileModel(
-              user = user.get(),
-              phrase = phrase.get(),
-              fileName = outputFile.name,
-            )
-          )
-          .id
+      val userPhraseFile =
+        userPhraseFileRepository.save(
+          UserPhraseFileModel(user = user.get(), phrase = phrase.get(), fileName = outputFile.name)
+        )
 
       // Schedule background task for cleanup
       executor.submit {
@@ -121,7 +109,7 @@ class AudioService(
               .findByUserIdAndPhraseIdAndDeletedAtIsNullAndIdLessThanOrderByCreatedAtDesc(
                 userId,
                 phraseId,
-                fileId,
+                userPhraseFile.id,
               )
 
           // Soft-delete any previous files for this user-phrase combination
@@ -147,6 +135,8 @@ class AudioService(
           logger.error("Error during cleanup task:", e)
         }
       }
+
+      return ServiceResult.success(userPhraseFile)
     } catch (ex: Exception) {
       logger.error("Error when uploading file:", ex)
       return ServiceResult.failure(
@@ -154,8 +144,6 @@ class AudioService(
         HttpStatus.INTERNAL_SERVER_ERROR,
       )
     }
-
-    return ServiceResult.success(null)
   }
 
   /**
@@ -199,7 +187,7 @@ class AudioService(
         File.createTempFile(objectName.substringBeforeLast("."), objectName.substringAfterLast("."))
 
       // Save downloaded file to temporary file
-      FileOutputStream(tempFile).use { outputStream -> inputStream.use { it.copyTo(outputStream) } }
+      FileUtils.copyInputStreamToFile(inputStream, tempFile)
 
       // Convert audio to m4a format
       outputFile = converterService.convertAudioFile(info, tempFile!!, "m4a")

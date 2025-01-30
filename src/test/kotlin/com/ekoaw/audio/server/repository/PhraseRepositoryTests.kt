@@ -20,7 +20,9 @@ import org.testcontainers.utility.DockerImageName
 @Sql(scripts = ["/migrations/sql/001_schemas.sql", "/migrations/sql/003_phrases_data.sql"])
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
-class PhraseRepositoryTests(@Autowired private val phraseRepository: PhraseRepository) {
+class PhraseRepositoryTests {
+
+  @Autowired private lateinit var phraseRepository: PhraseRepository
 
   companion object {
     @Container private val db = PostgreSQLContainer(DockerImageName.parse("postgres:17-alpine"))

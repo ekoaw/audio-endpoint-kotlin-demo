@@ -29,11 +29,11 @@ import org.testcontainers.utility.DockerImageName
 )
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
-class UserPhraseFileRepositoryTests(
-  @Autowired private val userRepository: UserRepository,
-  @Autowired private val phraseRepository: PhraseRepository,
-  @Autowired private val userPhraseFileRepository: UserPhraseFileRepository,
-) {
+class UserPhraseFileRepositoryTests {
+
+  @Autowired private lateinit var userRepository: UserRepository
+  @Autowired private lateinit var phraseRepository: PhraseRepository
+  @Autowired private lateinit var userPhraseFileRepository: UserPhraseFileRepository
 
   companion object {
     @Container private val db = PostgreSQLContainer(DockerImageName.parse("postgres:17-alpine"))

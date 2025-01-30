@@ -123,5 +123,6 @@ Alternatively, you can start PostgreSQL and MinIO manually and then run the appl
 
 ## Future Enhancements
 
-- Implement integration and load testing to ensure system reliability and performance under various conditions.
-- Simulate and test load balancing strategies using Kubernetes and a reverse proxy to enhance scalability and fault tolerance.
+- Complete unit test coverage.
+- Integration and load testing for reliability and performance.
+- Load balancing simulation and testing (Kubernetes/reverse proxy) for scalability and fault tolerance.
