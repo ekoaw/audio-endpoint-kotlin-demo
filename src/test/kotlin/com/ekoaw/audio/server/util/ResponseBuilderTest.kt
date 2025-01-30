@@ -3,7 +3,7 @@ package com.ekoaw.audio.server.util
 import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 
-class ResponseBuilderTests {
+class ResponseBuilderTest {
   @Test
   fun `success should return response with success status`() {
     val response = ResponseBuilder.success()

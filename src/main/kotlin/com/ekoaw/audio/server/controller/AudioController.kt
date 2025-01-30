@@ -1,4 +1,4 @@
-package com.ekoaw.audio.server.application.controller
+package com.ekoaw.audio.server.controller
 
 import com.ekoaw.audio.server.model.request.AudioRequestModel
 import com.ekoaw.audio.server.model.response.ResponseModel

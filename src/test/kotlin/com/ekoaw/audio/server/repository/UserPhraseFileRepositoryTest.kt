@@ -29,7 +29,7 @@ import org.testcontainers.utility.DockerImageName
 )
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
-class UserPhraseFileRepositoryTests {
+class UserPhraseFileRepositoryTest {
 
   @Autowired private lateinit var userRepository: UserRepository
   @Autowired private lateinit var phraseRepository: PhraseRepository

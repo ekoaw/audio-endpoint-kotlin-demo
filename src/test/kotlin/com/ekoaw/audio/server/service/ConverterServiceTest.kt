@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
-class AudioConverterTests {
+class AudioConverterTest {
   private lateinit var converterService: ConverterService
   private lateinit var audioConversionConfig: AudioConversionConfig
   private lateinit var processMock: Process

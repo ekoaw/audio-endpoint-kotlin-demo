@@ -27,7 +27,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.web.multipart.MultipartFile
 
 @ExtendWith(MockKExtension::class)
-class AudioServiceTests {
+class AudioServiceTest {
 
   @MockK private lateinit var userRepository: UserRepository
   @MockK private lateinit var phraseRepository: PhraseRepository
@@ -207,7 +207,7 @@ class AudioServiceTests {
     // Arrange
     val info = AudioRequestModel(userId = 1, phraseId = 1)
     val audioFormat = "m4a"
-    val uploadedFile = mockk<UserPhraseFileModel>()
+    val userPhraseFile = mockk<UserPhraseFileModel>()
     val tempFile = File.createTempFile("temp", ".m4a")
     val outputFile = File.createTempFile("temp", ".m4a")
     val inputStream = mockk<InputStream>()
@@ -231,8 +231,8 @@ class AudioServiceTests {
         any(),
         any(),
       )
-    } returns Optional.of(uploadedFile)
-    every { uploadedFile.fileName } returns "test.m4a"
+    } returns Optional.of(userPhraseFile)
+    every { userPhraseFile.fileName } returns "test.m4a"
     every { storageService.downloadFile("test.m4a") } returns inputStream
 
     // Mock the conversion service

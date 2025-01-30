@@ -1,6 +1,6 @@
 package com.ekoaw.audio.server.repository
 
-import com.ekoaw.audio.server.model.entity.UserModel
+import com.ekoaw.audio.server.model.entity.PhraseModel
 import kotlin.test.assertEquals
 import org.junit.jupiter.api.AfterAll
 import org.junit.jupiter.api.BeforeAll
@@ -17,12 +17,12 @@ import org.testcontainers.junit.jupiter.Testcontainers
 import org.testcontainers.utility.DockerImageName
 
 @DataJpaTest
-@Sql(scripts = ["/migrations/sql/001_schemas.sql", "/migrations/sql/002_users_data.sql"])
+@Sql(scripts = ["/migrations/sql/001_schemas.sql", "/migrations/sql/003_phrases_data.sql"])
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Testcontainers
-class UserRepositoryTests {
+class PhraseRepositoryTest {
 
-  @Autowired private lateinit var userRepository: UserRepository
+  @Autowired private lateinit var phraseRepository: PhraseRepository
 
   companion object {
     @Container private val db = PostgreSQLContainer(DockerImageName.parse("postgres:17-alpine"))
@@ -48,11 +48,11 @@ class UserRepositoryTests {
   }
 
   @Test
-  fun `id is generated when a user is persisted`() {
-    val user = UserModel()
+  fun `id is generated when a phrase is persisted`() {
+    val phrase = PhraseModel()
 
-    assertEquals(0, user.id)
-    userRepository.save(user)
-    assertEquals(11, user.id)
+    assertEquals(0, phrase.id)
+    phraseRepository.save(phrase)
+    assertEquals(11, phrase.id)
   }
 }
