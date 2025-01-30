@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
 
-class ServiceResultTest {
+class ServiceResultTests {
   @Test
   fun `success result should contain correct data`() {
     val result = ServiceResult.success("Test Data")

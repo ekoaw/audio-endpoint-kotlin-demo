@@ -83,13 +83,10 @@ class AudioService(
       val phraseId = phrase.get().id
 
       // Generate unique file name and path
-      // val inputPath = tempFolder.resolve("${userId}_${phraseId}_${Ksuid.newKsuid()}.m4a")
-      // val inputFile = inputPath.toFile()
       val inputFile = File.createTempFile("${userId}_${phraseId}_", ".m4a")
 
       // Save uploaded file to temporary location
       logger.info("Saving uploaded file to: {}", inputFile)
-      // multipartFile.inputStream.use { input -> Files.copy(input, inputFile.toPath()) }
 
       multipartFile.inputStream.use { inputStream ->
         FileOutputStream(inputFile).use { outputStream -> inputStream.copyTo(outputStream) }

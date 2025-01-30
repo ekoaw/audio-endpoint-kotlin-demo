@@ -1,0 +1,32 @@
+{"properties": [
+  {
+    "name": "audio.conversion.extensions.m4a",
+    "type": "java.lang.String",
+    "description": "FFMpeg parameter for m4a conversion"
+  },
+  {
+    "name": "audio.conversion.extensions.wav",
+    "type": "java.lang.String",
+    "description": "FFMpeg parameter for wav conversion"
+  },
+  {
+    "name": "minio.bucket",
+    "type": "java.lang.String",
+    "description": "MinIO Bucket name"
+  },
+  {
+    "name": "minio.secret-key",
+    "type": "java.lang.String",
+    "description": "MinIO secret key"
+  },
+  {
+    "name": "minio.access-key",
+    "type": "java.lang.String",
+    "description": "MinIO access key"
+  },
+  {
+    "name": "minio.endpoint",
+    "type": "java.lang.String",
+    "description": "MinIO endpoint url"
+  }
+]}
