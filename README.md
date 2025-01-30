@@ -104,8 +104,7 @@ Alternatively, you can start PostgreSQL and MinIO manually and then run the appl
 
 ```json
 {
-  "message": "File uploaded successfully",
-  "storedPath": "/audio_storage/{file_name}.wav"
+  "message": "File uploaded successfully"
 }
 ```
 
