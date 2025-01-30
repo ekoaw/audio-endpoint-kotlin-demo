@@ -1,5 +1,6 @@
 ﻿package com.ekoaw.audio.server.service
 
+import com.ekoaw.audio.server.config.AudioConversionConfig
 import com.ekoaw.audio.server.model.entity.UserPhraseFileModel
 import com.ekoaw.audio.server.model.request.AudioRequestModel
 import com.ekoaw.audio.server.repository.PhraseRepository
@@ -35,7 +36,8 @@ class AudioService(
         private val phraseRepository: PhraseRepository,
         private val userPhraseFileRepository: UserPhraseFileRepository,
         private val storageService: StorageService,
-        private val converterService: ConverterService
+        private val converterService: ConverterService,
+        private val audioConversionConfig: AudioConversionConfig
 ) {
     private val logger: Logger = LoggerFactory.getLogger(AudioService::class.java)
     private val executor = Executors.newSingleThreadExecutor()
@@ -170,14 +172,21 @@ class AudioService(
      * Downloads the latest audio file associated with a specific user and phrase.
      *
      * @param info An object containing user ID and phrase ID.
+     * @param audioFormat The desired audio format (e.g., "m4a").
      * @return A ServiceResult indicating success or failure with an optional Resource object on
      * success.
      */
-    fun downloadAudioFile(info: AudioRequestModel): ServiceResult<Resource?> {
+    fun downloadAudioFile(info: AudioRequestModel, audioFormat: String): ServiceResult<Resource?> {
         var tempFile: File? = null
         var outputFile: File? = null
 
         try {
+            // Check supported audio format / extension
+            if (!audioConversionConfig.extensions.containsKey(audioFormat)) {
+                logger.error("Unsupported extension: {}", audioFormat)
+                throw IllegalArgumentException("Unsupported audio format: $audioFormat")
+            }
+
             // Find the latest uploaded file
             val uploadedFile =
                     userPhraseFileRepository
