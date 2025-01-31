@@ -55,7 +55,7 @@ Update `application.yml` with the required database and MinIO credentials:
 ```yaml
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/audio_service
+    url: jdbc:postgresql://localhost:5432/audio_database
     username: your_username
     password: your_password
   jpa:
@@ -88,7 +88,30 @@ You can use Docker Compose to run the server along with its dependencies.
   - **Password:** `dbpass`
   - **Database:** `audiodb`
 
-Alternatively, you can start PostgreSQL and MinIO manually and then run the application:
+### Manual Setup
+
+Alternatively, if you are not using Docker Compose, you need to configure the application manually:
+
+Update `application.yml` with the required database and MinIO credentials:
+
+```yaml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/audio_database
+    username: your_username
+    password: your_password
+  jpa:
+    hibernate:
+      ddl-auto: update
+
+minio:
+  endpoint: http://localhost:9000
+  accessKey: your_access_key
+  secretKey: your_secret_key
+  bucketName: audio-files
+```
+
+Then start PostgreSQL and MinIO manually, and run the application:
 
 1. Start PostgreSQL and MinIO
 2. Run the application:
